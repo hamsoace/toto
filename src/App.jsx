@@ -5,6 +5,7 @@ import { LanguageProvider } from './contexts/LanguageContext';
 import { OfflineProvider } from './contexts/OfflineContext';
 import usePWAInstall from './hooks/usePWAInstall';
 import { Download } from 'lucide-react';
+import { recordVisit, recordInstall } from './utils/analytics';
 
 // Pages
 import PhoneAuth from './pages/PhoneAuth';
@@ -21,7 +22,7 @@ import OfflineIndicator from './components/OfflineIndicator';
 
 function AppRoutes() {
   const { user, loading } = useAuth();
-  const location = useLocation;
+  const location = useLocation();
 
   useEffect(() => {
     recordVisit(user?.id, location.pathname);
