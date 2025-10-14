@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { LanguageProvider } from './contexts/LanguageContext';
 import { OfflineProvider } from './contexts/OfflineContext';
@@ -21,6 +21,11 @@ import OfflineIndicator from './components/OfflineIndicator';
 
 function AppRoutes() {
   const { user, loading } = useAuth();
+  const location = useLocation;
+
+  useEffect(() => {
+    recordVisit(user?.id, location.pathname);
+  }, [location]);
 
   if (loading) {
     return <LoadingSpinner />;
@@ -64,7 +69,8 @@ function AppRoutes() {
 function App() {
   const { isInstallable, promptInstall } = usePWAInstall();
   const [showInstallPrompt, setShowInstallPrompt] = useState(false);
-
+  
+  
   // Automatically show install modal after load
   useEffect(() => {
     if (isInstallable) {
@@ -78,6 +84,9 @@ function App() {
   const handleInstall = async () => {
     await promptInstall();
     setShowInstallPrompt(false);
+    window.addEventListener('appinstalled', () => {
+      recordInstall(user?.id);
+    });
   };
 
   return (
