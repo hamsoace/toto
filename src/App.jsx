@@ -3,6 +3,8 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { LanguageProvider } from './contexts/LanguageContext';
 import { OfflineProvider } from './contexts/OfflineContext';
+import usePWAInstall from './hooks/usePWAInstall';
+import { Download } from 'lucide-react';
 
 // Pages
 import PhoneAuth from './pages/PhoneAuth';
@@ -60,6 +62,24 @@ function AppRoutes() {
 }
 
 function App() {
+  const { isInstallable, promptInstall } = usePWAInstall();
+  const [showInstallPrompt, setShowInstallPrompt] = useState(false);
+
+  // Automatically show install modal after load
+  useEffect(() => {
+    if (isInstallable) {
+      const timer = setTimeout(() => {
+        setShowInstallPrompt(true);
+      }, 2000); // show 2s after app opens
+      return () => clearTimeout(timer);
+    }
+  }, [isInstallable]);
+
+  const handleInstall = async () => {
+    await promptInstall();
+    setShowInstallPrompt(false);
+  };
+
   return (
     <LanguageProvider>
       <AuthProvider>
@@ -68,6 +88,31 @@ function App() {
             <div className="app">
               <OfflineIndicator />
               <AppRoutes />
+
+              {/* Auto Install Prompt Modal */}
+              {showInstallPrompt && (
+                <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+                  <div className="bg-white p-6 rounded-2xl shadow-lg max-w-sm text-center">
+                    <h2 className="text-lg font-semibold mb-2">Install TotoCare App</h2>
+                    <p className="text-gray-600 mb-4">
+                      Install TotoCare on your device for faster access and offline use.
+                    </p>
+                    <button
+                      onClick={handleInstall}
+                      className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 mx-auto"
+                    >
+                      <Download size={18} />
+                      Install Now
+                    </button>
+                    <button
+                      onClick={() => setShowInstallPrompt(false)}
+                      className="mt-3 text-sm text-gray-500 hover:underline"
+                    >
+                      Maybe Later
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </Router>
         </OfflineProvider>
