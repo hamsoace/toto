@@ -5,7 +5,42 @@ import { LanguageProvider } from './contexts/LanguageContext';
 import { OfflineProvider } from './contexts/OfflineContext';
 import usePWAInstall from './hooks/usePWAInstall';
 import { Download } from 'lucide-react';
-import { recordVisit, recordInstall } from './utils/analytics';
+
+// Analytics utility functions
+const recordVisit = async (userId, page) => {
+  try {
+    const API_URL = import.meta.env.VITE_API_URL || "https://toto-backend-bw80.onrender.com/api/v1";
+    await fetch(`${API_URL}/analytics/visit`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        userId,
+        page,
+        device: navigator.userAgent,
+        browser: navigator.vendor || "Unknown",
+      }),
+    });
+  } catch (err) {
+    console.warn("Failed to record visit:", err);
+  }
+};
+
+const recordInstall = async (userId) => {
+  try {
+    const API_URL = import.meta.env.VITE_API_URL || "https://toto-backend-bw80.onrender.com/api/v1";
+    await fetch(`${API_URL}/analytics/install`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        userId,
+        device: navigator.userAgent,
+        browser: navigator.vendor || "Unknown",
+      }),
+    });
+  } catch (err) {
+    console.warn("Failed to record install:", err);
+  }
+};
 
 // Pages
 import PhoneAuth from './pages/PhoneAuth';
@@ -25,8 +60,10 @@ function AppRoutes() {
   const location = useLocation();
 
   useEffect(() => {
-    recordVisit(user?.id, location.pathname);
-  }, [location]);
+    if (user?.id) {
+      recordVisit(user.id, location.pathname);
+    }
+  }, [location, user]);
 
   if (loading) {
     return <LoadingSpinner />;
@@ -71,7 +108,6 @@ function App() {
   const { isInstallable, promptInstall } = usePWAInstall();
   const [showInstallPrompt, setShowInstallPrompt] = useState(false);
   
-  
   // Automatically show install modal after load
   useEffect(() => {
     if (isInstallable) {
@@ -85,9 +121,17 @@ function App() {
   const handleInstall = async () => {
     await promptInstall();
     setShowInstallPrompt(false);
-    window.addEventListener('appinstalled', () => {
-      recordInstall(user?.id);
-    });
+    
+    // Record install when app is installed
+    const handleAppInstalled = (e) => {
+      const user = JSON.parse(localStorage.getItem('user') || '{}');
+      if (user?.id) {
+        recordInstall(user.id);
+      }
+      window.removeEventListener('appinstalled', handleAppInstalled);
+    };
+    
+    window.addEventListener('appinstalled', handleAppInstalled);
   };
 
   return (
@@ -101,22 +145,22 @@ function App() {
 
               {/* Auto Install Prompt Modal */}
               {showInstallPrompt && (
-                <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-                  <div className="bg-white p-6 rounded-2xl shadow-lg max-w-sm text-center">
+                <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
+                  <div className="bg-white p-6 rounded-2xl shadow-lg max-w-sm w-full text-center">
                     <h2 className="text-lg font-semibold mb-2">Install TotoCare App</h2>
                     <p className="text-gray-600 mb-4">
                       Install TotoCare on your device for faster access and offline use.
                     </p>
                     <button
                       onClick={handleInstall}
-                      className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 mx-auto"
+                      className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 mx-auto mb-3"
                     >
                       <Download size={18} />
                       Install Now
                     </button>
                     <button
                       onClick={() => setShowInstallPrompt(false)}
-                      className="mt-3 text-sm text-gray-500 hover:underline"
+                      className="text-sm text-gray-500 hover:underline"
                     >
                       Maybe Later
                     </button>
