@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
-import { Vaccine, TrendingUp, Heart, Users } from 'lucide-react';
+import { Syringe, TrendingUp, Heart, Users } from 'lucide-react';
 
 const translations = {
   en: {
@@ -41,7 +41,7 @@ function Dashboard() {
 
       <div className="quick-actions">
         <Link to="/vaccinations" className="action-card">
-          <Vaccine className="action-icon" />
+          <Syringe className="action-icon" />
           <span>{t.vaccinations}</span>
         </Link>
         <Link to="/milestones" className="action-card">

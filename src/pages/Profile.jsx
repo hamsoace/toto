@@ -52,4 +52,47 @@ const translations = {
     babyBirthDate: "Tarehe ya Kuzaliwa kwa Mtoto",
     babyGender: "Jinsia ya Mtoto",
     male: "Mwanaume",
-    female: "Mwana
+    female: "Mwanamke",
+    unknown: "Sipendi kusema",
+    location: "Eneo Lako",
+    language: "Lugha",
+    english: "Kiingereza",
+    swahili: "Kiswahili",
+    notifications: "Arifa za Kusukuma",
+    darkMode: "Hali ya Giza",
+    save: "Hifadhi Mabadiliko",
+    saving: "Inahifadhi...",
+    saved: "Mabadiliko yamehifadhiwa kwa mafanikio!",
+    logout: "Toka",
+    confirmLogout: "Je, una uhakika unataka kutoka?",
+    addBaby: "Ongeza Taarifa za Mtoto",
+    updateBaby: "Sasisha Taarifa za Mtoto",
+    required: "Inahitajika",
+    optional: "Hiari"
+  }
+}  
+
+const Profile = () => {
+  const { user, logout } = useAuth();
+  const { language } = useLanguage();
+  const t = translations[language] || translations.en;
+
+  return (
+    <div className="profile-page">
+      <h1>{t.title}</h1>
+
+      <section>
+        <h2>{t.profile}</h2>
+        <p>{t.name}: {user?.name || "—"}</p>
+        <p>{t.phone}: {user?.phone || "—"}</p>
+      </section>
+
+      <section>
+        <h2>{t.preferences}</h2>
+        <button onClick={logout}>{t.logout}</button>
+      </section>
+    </div>
+  );
+};
+
+export default Profile;

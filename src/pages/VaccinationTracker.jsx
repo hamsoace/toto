@@ -3,7 +3,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useOffline } from '../contexts/OfflineContext';
 import { vaccinationService } from '../services/api';
-import { CheckCircle, Clock, AlertCircle, Calendar, Vaccine as VaccineIcon } from 'lucide-react';
+import { CheckCircle, Clock, AlertCircle, Calendar, Syringe } from 'lucide-react';
 
 const translations = {
   en: {
@@ -123,7 +123,7 @@ function VaccinationTracker() {
     return (
       <div className="page-container">
         <div className="empty-state">
-          <VaccineIcon size={48} className="empty-icon" />
+          <Syringe size={48} className="empty-icon" />
           <h2>{t.addBaby}</h2>
           <p>Add your baby's birth date in profile settings to see their personalized vaccination schedule.</p>
         </div>
